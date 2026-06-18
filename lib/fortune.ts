@@ -3,6 +3,20 @@
 // reproducible and verifiable by anyone (no hidden server randomness).
 // 娱乐玄学 · 非投资建议.
 
+import type { Lang } from "./i18n";
+import {
+  VERDICTS_HANT,
+  VERDICTS_EN,
+  YI_HANT,
+  YI_EN,
+  JI_HANT,
+  JI_EN,
+  OUTCOME_LABEL_I18N,
+  OUTCOME_NAME_I18N,
+  TIER_NAME_I18N,
+  TIER_DESC_I18N,
+} from "./fortune-i18n";
+
 export type Outcome = "上上签" | "上签" | "中签" | "下签";
 
 export type DrawTier = {
@@ -209,4 +223,47 @@ export function draw(txHash: string, tier: DrawTier): FortuneResult {
     Math.min(100, Math.round(base[outcome] + (rng(txHash, 6) * 22 - 11)))
   );
   return { outcome, verdict, lucky, yi, ji, huiben };
+}
+
+// ---------- i18n: re-localize a fortune from its tx hash ----------
+// Arrays are the same length per outcome across languages, so the deterministic
+// index matches; this lets the client render the verdict/宜/忌 in any language
+// without changing /api/draw (which stays 简体 for the leaderboard + card PNG).
+
+function verdictsFor(lang: Lang): Record<Outcome, string[]> {
+  return lang === "en" ? VERDICTS_EN : lang === "zh-Hant" ? VERDICTS_HANT : VERDICTS;
+}
+function yiFor(lang: Lang): string[] {
+  return lang === "en" ? YI_EN : lang === "zh-Hant" ? YI_HANT : YI;
+}
+function jiFor(lang: Lang): string[] {
+  return lang === "en" ? JI_EN : lang === "zh-Hant" ? JI_HANT : JI;
+}
+
+export function localizeFortune(
+  txHash: string,
+  outcome: Outcome,
+  lang: Lang
+): { verdict: string; yi: string; ji: string } {
+  const vlib = verdictsFor(lang)[outcome];
+  const yarr = yiFor(lang);
+  const jarr = jiFor(lang);
+  return {
+    verdict: vlib[Math.floor(rng(txHash, 2) * vlib.length)],
+    yi: yarr[Math.floor(rng(txHash, 4) * yarr.length)],
+    ji: jarr[Math.floor(rng(txHash, 5) * jarr.length)],
+  };
+}
+
+export function outcomeLabel(outcome: Outcome, lang: Lang): string {
+  return OUTCOME_LABEL_I18N[lang][outcome];
+}
+export function outcomeName(outcome: Outcome, lang: Lang): string {
+  return OUTCOME_NAME_I18N[lang][outcome];
+}
+export function tierName(id: DrawTier["id"], lang: Lang): string {
+  return TIER_NAME_I18N[lang][id];
+}
+export function tierDesc(id: DrawTier["id"], lang: Lang): string {
+  return TIER_DESC_I18N[lang][id];
 }

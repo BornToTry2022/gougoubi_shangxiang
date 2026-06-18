@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { LangProvider } from "@/components/providers/LangProvider";
 import WalletProvider from "@/components/providers/WalletProvider";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
@@ -46,14 +47,16 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <WalletProvider>
-          <AppHeader />
-          {/* Pad the bottom so content clears the fixed Tab bar + safe area. */}
-          <div className="pb-[calc(84px+env(safe-area-inset-bottom))]">
-            {children}
-          </div>
-          <BottomNav />
-        </WalletProvider>
+        <LangProvider>
+          <WalletProvider>
+            <AppHeader />
+            {/* Pad the bottom so content clears the fixed Tab bar + safe area. */}
+            <div className="pb-[calc(84px+env(safe-area-inset-bottom))]">
+              {children}
+            </div>
+            <BottomNav />
+          </WalletProvider>
+        </LangProvider>
       </body>
     </html>
   );

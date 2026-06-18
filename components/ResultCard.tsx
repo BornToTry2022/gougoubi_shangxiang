@@ -1,7 +1,19 @@
-import { OUTCOME_META, type FortuneResult } from "@/lib/fortune";
-import { formatCN, shortAddr } from "@/lib/ggb";
+"use client";
+
+import {
+  OUTCOME_META,
+  localizeFortune,
+  outcomeLabel,
+  outcomeName,
+  tierName,
+  type DrawTier,
+  type FortuneResult,
+} from "@/lib/fortune";
+import { formatNum, shortAddr } from "@/lib/ggb";
+import { useLang, useT } from "./providers/LangProvider";
 
 export type CardData = FortuneResult & {
+  tierId?: DrawTier["id"];
   tierName: string;
   tierEmoji: string;
   amount: number;
@@ -11,7 +23,17 @@ export type CardData = FortuneResult & {
 };
 
 export default function ResultCard({ data }: { data: CardData }) {
+  const t = useT();
+  const { lang } = useLang();
   const meta = OUTCOME_META[data.outcome];
+
+  // Re-localize the verdict/宜/忌 from the tx hash (same deterministic slot).
+  const loc =
+    data.txHash != null
+      ? localizeFortune(data.txHash, data.outcome, lang)
+      : { verdict: data.verdict, yi: data.yi, ji: data.ji };
+  const tName = data.tierId ? tierName(data.tierId, lang) : data.tierName;
+
   return (
     <div
       id="qian-card"
@@ -25,7 +47,7 @@ export default function ResultCard({ data }: { data: CardData }) {
       {/* header */}
       <div className="flex items-center justify-between text-[11px] text-doge-cream/55">
         <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
-          {data.tierEmoji} {data.tierName}
+          {data.tierEmoji} {tName}
         </span>
         <span>{data.dateLabel}</span>
       </div>
@@ -33,13 +55,13 @@ export default function ResultCard({ data }: { data: CardData }) {
       {/* outcome */}
       <div className="mt-5">
         <div className="text-[13px] tracking-[0.3em] text-doge-cream/50">
-          {meta.label}
+          {outcomeLabel(data.outcome, lang)}
         </div>
         <div
           className="mt-1 text-6xl font-black leading-none"
           style={{ color: meta.color, textShadow: `0 0 28px ${meta.glow}` }}
         >
-          {data.outcome}
+          {outcomeName(data.outcome, lang)}
         </div>
       </div>
 
@@ -47,19 +69,16 @@ export default function ResultCard({ data }: { data: CardData }) {
 
       {/* verdict */}
       <p className="mx-auto max-w-[20rem] text-[15px] font-medium leading-relaxed text-doge-cream/90">
-        「{data.verdict}」
+        「{loc.verdict}」
       </p>
 
       {/* meters */}
       <div className="mt-5 grid grid-cols-2 gap-3 text-left">
         <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-          <div className="text-[10px] text-doge-cream/45">回本指数（娱乐）</div>
+          <div className="text-[10px] text-doge-cream/45">{t("card.recovery")}</div>
           <div className="mt-1.5 flex items-center gap-2">
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${data.huiben}%`, background: meta.color }}
-              />
+              <div className="h-full rounded-full" style={{ width: `${data.huiben}%`, background: meta.color }} />
             </div>
             <span className="tnum text-sm font-bold" style={{ color: meta.color }}>
               {data.huiben}
@@ -67,40 +86,37 @@ export default function ResultCard({ data }: { data: CardData }) {
           </div>
         </div>
         <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-          <div className="text-[10px] text-doge-cream/45">今日幸运数字</div>
-          <div className="tnum mt-1 text-2xl font-black text-doge-cream">
-            {data.lucky}
-          </div>
+          <div className="text-[10px] text-doge-cream/45">{t("card.lucky")}</div>
+          <div className="tnum mt-1 text-2xl font-black text-doge-cream">{data.lucky}</div>
         </div>
       </div>
 
       {/* yi / ji */}
       <div className="mt-3 flex gap-3 text-left text-[13px]">
         <div className="flex-1 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-3">
-          <span className="text-emerald-300/80">宜</span>
-          <span className="ml-1.5 text-doge-cream/85">{data.yi}</span>
+          <span className="text-emerald-300/80">{t("card.yi")}</span>
+          <span className="ml-1.5 text-doge-cream/85">{loc.yi}</span>
         </div>
         <div className="flex-1 rounded-2xl border border-rose-400/20 bg-rose-400/[0.06] p-3">
-          <span className="text-rose-300/80">忌</span>
-          <span className="ml-1.5 text-doge-cream/85">{data.ji}</span>
+          <span className="text-rose-300/80">{t("card.ji")}</span>
+          <span className="ml-1.5 text-doge-cream/85">{loc.ji}</span>
         </div>
       </div>
 
       {/* burn receipt */}
       <div className="mt-5 rounded-2xl bg-black/40 p-3 text-[11px] text-doge-cream/55">
-        🔥 本签烧 <b className="text-doge-amber">{formatCN(data.amount)} 狗</b>
-        ，已永久打入黑洞地址
+        {t("card.receipt", { amount: formatNum(data.amount, lang) })}
         {data.txHash ? (
           <div className="mt-1 text-doge-cream/40">
-            凭证 {shortAddr(data.txHash)} · 可在 BscScan 核对
+            {t("card.proof", { tx: shortAddr(data.txHash) })}
           </div>
         ) : null}
       </div>
 
       {/* branding */}
       <div className="mt-4 flex items-center justify-between text-[10px] text-doge-cream/35">
-        <span>狗狗上香 · 回本签</span>
-        <span>娱乐玄学 · 非投资建议</span>
+        <span>{t("card.brand_left")}</span>
+        <span>{t("card.brand_right")}</span>
       </div>
     </div>
   );

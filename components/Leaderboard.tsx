@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { OUTCOME_META, type Outcome } from "@/lib/fortune";
-import { formatCN, shortAddr } from "@/lib/ggb";
+import { OUTCOME_META, outcomeName, type Outcome } from "@/lib/fortune";
+import { formatNum, shortAddr } from "@/lib/ggb";
+import { useLang, useT } from "@/components/providers/LangProvider";
 
 type Row = {
   rank: number;
@@ -33,6 +34,8 @@ export default function Leaderboard({
   wallet?: string | null;
   compact?: boolean;
 }) {
+  const t = useT();
+  const { lang } = useLang();
   const [data, setData] = useState<Resp | null>(null);
   const [err, setErr] = useState(false);
 
@@ -49,7 +52,7 @@ export default function Leaderboard({
   if (!data) {
     return (
       <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 text-center text-[12px] text-doge-cream/40">
-        加载烧狗榜…
+        {t("board.loading")}
       </div>
     );
   }
@@ -58,28 +61,23 @@ export default function Leaderboard({
     return (
       <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 text-center">
         <div className="text-3xl">🐕🔥</div>
-        <p className="mt-2 text-[13px] text-doge-cream/70">烧狗榜虚位以待</p>
-        <p className="mt-1 text-[11px] text-doge-cream/40">
-          第一个上香的，就是榜首「狗王」
-        </p>
+        <p className="mt-2 text-[13px] text-doge-cream/70">{t("board.empty_head")}</p>
+        <p className="mt-1 text-[11px] text-doge-cream/40">{t("board.empty_sub")}</p>
         <a href="/qian" className="mt-3 inline-block text-sm text-doge-gold">
-          去抢狗王 →
+          {t("board.empty_cta")}
         </a>
       </div>
     );
   }
 
-  const meInTop =
-    data.me && data.rows.some((r) => r.wallet === data.me!.wallet);
+  const meInTop = data.me && data.rows.some((r) => r.wallet === data.me!.wallet);
 
   return (
     <div className="space-y-2">
       {!compact ? (
         <div className="flex items-center justify-between rounded-2xl border border-doge-gold/15 bg-doge-gold/[0.05] px-4 py-2.5 text-[11px] text-doge-cream/55">
-          <span>共 {data.totals.wallets} 位狗友上香</span>
-          <span>
-            累计 {formatCN(data.totals.burned)} 狗 · {data.totals.draws} 签
-          </span>
+          <span>{t("board.stats_wallets", { n: data.totals.wallets })}</span>
+          <span>{t("board.stats_burned", { burned: formatNum(data.totals.burned, lang), draws: data.totals.draws })}</span>
         </div>
       ) : null}
 
@@ -99,7 +97,7 @@ export default function Leaderboard({
           href="/qian"
           className="mt-2 block rounded-2xl bg-gradient-to-r from-doge-amber to-doge-ember py-3 text-center text-sm font-black text-doge-ink shadow-glow"
         >
-          🀄 烧狗上香 · 冲榜
+          {t("board.cta")}
         </a>
       ) : null}
     </div>
@@ -107,13 +105,13 @@ export default function Leaderboard({
 }
 
 function Line({ row, me }: { row: Row; me?: boolean }) {
+  const t = useT();
+  const { lang } = useLang();
   const om = OUTCOME_META[row.bestOutcome as Outcome];
   return (
     <div
       className={`flex items-center gap-3 rounded-2xl border p-3 ${
-        me
-          ? "border-doge-gold/50 bg-doge-gold/[0.08]"
-          : "border-white/8 bg-white/[0.03]"
+        me ? "border-doge-gold/50 bg-doge-gold/[0.08]" : "border-white/8 bg-white/[0.03]"
       }`}
     >
       <div className="w-8 shrink-0 text-center text-sm font-black tabular-nums text-doge-cream">
@@ -124,21 +122,21 @@ function Line({ row, me }: { row: Row; me?: boolean }) {
           <span className="truncate text-[13px] font-semibold text-doge-cream">
             {shortAddr(row.wallet)}
           </span>
-          {me ? <span className="text-[10px] text-doge-gold">· 我</span> : null}
+          {me ? <span className="text-[10px] text-doge-gold">{t("board.me")}</span> : null}
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-[10px] text-doge-cream/45">
-          <span>{row.draws} 签</span>
-          {row.streak > 1 ? <span>🔥连签{row.streak}天</span> : null}
+          <span>{t("board.row_draws", { n: row.draws })}</span>
+          {row.streak > 1 ? <span>{t("board.row_streak", { n: row.streak })}</span> : null}
           {om ? (
-            <span style={{ color: om.color }}>最旺 {row.bestOutcome}</span>
+            <span style={{ color: om.color }}>
+              {t("board.row_best", { outcome: outcomeName(row.bestOutcome as Outcome, lang) })}
+            </span>
           ) : null}
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <div className="tnum text-sm font-black text-doge-amber">
-          {formatCN(row.totalBurned)}
-        </div>
-        <div className="text-[10px] text-doge-cream/40">狗</div>
+        <div className="tnum text-sm font-black text-doge-amber">{formatNum(row.totalBurned, lang)}</div>
+        <div className="text-[10px] text-doge-cream/40">{t("board.unit")}</div>
       </div>
     </div>
   );

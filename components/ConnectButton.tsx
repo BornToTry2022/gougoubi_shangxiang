@@ -5,6 +5,7 @@ import { bsc } from "@reown/appkit/networks";
 import { ERC20_ABI, GGB, formatCN, shortAddr } from "@/lib/ggb";
 import { projectId } from "@/lib/wallet";
 import { openWalletModal } from "./providers/WalletProvider";
+import { useT } from "./providers/LangProvider";
 
 /**
  * The single connect entry-point, shown in the global top bar.
@@ -19,6 +20,7 @@ import { openWalletModal } from "./providers/WalletProvider";
  * createAppKit hasn't run server-side. Don't reintroduce it.
  */
 export default function ConnectButton() {
+  const t = useT();
   const { address, isConnected } = useConnection();
 
   const { data: balRaw } = useReadContract({
@@ -37,7 +39,7 @@ export default function ConnectButton() {
     return (
       <button
         onClick={openWalletModal}
-        aria-label="钱包账户"
+        aria-label={t("connect.account_aria")}
         className="flex min-h-[44px] items-center gap-2 rounded-full border border-doge-gold/30 bg-black/40 py-1.5 pl-3 pr-2.5 text-right transition active:scale-[0.98]"
       >
         <span className="flex flex-col leading-tight">
@@ -57,11 +59,11 @@ export default function ConnectButton() {
     <button
       onClick={openWalletModal}
       disabled={!configured}
-      aria-label="连接钱包"
-      title={configured ? undefined : "钱包连接未配置（缺少 Reown projectId）"}
+      aria-label={t("connect.connect_aria")}
+      title={configured ? undefined : t("connect.unconfigured")}
       className="inline-flex min-h-[44px] items-center rounded-full bg-gradient-to-r from-doge-amber to-doge-ember px-4 py-2.5 text-[13px] font-black text-doge-ink shadow-glow transition active:scale-[0.98] disabled:opacity-50"
     >
-      🔗 连接钱包
+      {t("connect.connect")}
     </button>
   );
 }

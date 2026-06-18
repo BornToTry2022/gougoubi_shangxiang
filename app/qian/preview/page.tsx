@@ -16,6 +16,7 @@ export default function PreviewPage() {
     const f = draw(SAMPLE_TX[i], t);
     return {
       ...f,
+      tierId: t.id,
       tierName: t.name,
       tierEmoji: t.emoji,
       amount: t.burn,

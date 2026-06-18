@@ -2,6 +2,7 @@
 // 代币名就是「狗狗币」(链上中文 symbol，无官方英文名)。下面的常量名 `GGB`
 // 只是代码内部标识符 / 旧 latin 简写，不是对外代币名；一切对外文案用「狗狗币」。
 // Single source of truth. Reusable by the web app and (later) Cloudflare Workers.
+import type { Lang } from "./i18n";
 
 export const GGB = {
   /** 狗狗币 token contract on BSC */
@@ -106,4 +107,23 @@ export function formatPct(p: number): string {
 
 export function shortAddr(a: string): string {
   return a.length > 12 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a;
+}
+
+/** Language-aware compact number: 简 万/亿, 繁 萬/億, en K/M/B. */
+export function formatNum(n: number, lang: Lang): string {
+  if (!isFinite(n)) return "—";
+  const abs = Math.abs(n);
+  const trim = (x: number, d: number) => x.toFixed(d).replace(/\.?0+$/, "");
+  if (lang === "en") {
+    if (abs >= 1e9) return trim(n / 1e9, 2) + "B";
+    if (abs >= 1e6) return trim(n / 1e6, 2) + "M";
+    if (abs >= 1e4) return trim(n / 1e3, 1) + "K";
+    return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }
+  const yi = lang === "zh-Hant" ? "億" : "亿";
+  const wan = lang === "zh-Hant" ? "萬" : "万";
+  if (abs >= 1e8) return trim(n / 1e8, 2) + yi;
+  if (abs >= 1e4) return trim(n / 1e4, 2) + wan;
+  if (abs >= 1) return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return n.toLocaleString("en-US", { maximumFractionDigits: 6 });
 }

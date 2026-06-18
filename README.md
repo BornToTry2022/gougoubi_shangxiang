@@ -1,7 +1,7 @@
 # 狗狗上香 (DogPray)
 
 开源社区 dApp —— 为 BNB 链上的中文 meme 币 **狗狗币** 提供「用即通缩」的链上体验：
-**烧一点狗狗币求每日「回本签」、登「烧狗榜」，每一笔销毁都在链上公开可验证。**
+**烧一点狗狗币求每日「回本签」、登「烧狗榜」，每一笔销毁都在链上公开可验证。** 界面支持 **简体 / 繁体 / English**。
 
 > 🟢 Live: https://ggbburn.gougoubi.workers.dev
 > 狗狗币合约: `0xb05678ed0c9559955559de864829a0c8af574444`（BSC, 18 decimals）
@@ -29,6 +29,7 @@
 
 - **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind**（构建用 webpack：`next build --webpack`）
 - **钱包连接**：Reown AppKit + wagmi v3（只配 BSC 56；只单笔 transfer、绝不 approve）
+- **多语言**：自建轻量 i18n（`lib/i18n*`），简体 / 繁体 / English，无第三方库
 - **部署**：Cloudflare Workers（`@opennextjs/cloudflare`）+ KV
 - **链上读取**：公共 BSC RPC（无需 API key）
 - **签卡 PNG**：`next/og`（satori）

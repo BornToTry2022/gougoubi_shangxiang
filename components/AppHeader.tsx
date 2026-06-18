@@ -1,18 +1,19 @@
 "use client";
 
 import ConnectButton from "./ConnectButton";
+import LangSwitcher from "./LangSwitcher";
+import { useT } from "./providers/LangProvider";
 
 /**
- * Unified top bar across all pages (brand + connect). Sticky so it stays in
- * reach while scrolling. Centered to the same 480px app column as the pages and
- * the bottom Tab bar. Page-specific chrome (live dot, balance) now lives in the
- * page body or the ConnectButton — pages no longer carry their own brand header.
+ * Unified top bar across all pages (brand + language + connect). Sticky so it
+ * stays in reach while scrolling. Centered to the same 480px app column.
  */
 export default function AppHeader() {
+  const t = useT();
   return (
     <header className="sticky top-0 z-30 border-b border-doge-gold/10 bg-doge-ink/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-[480px] items-center justify-between px-5 py-3">
-        <a href="/" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-[480px] items-center justify-between gap-2 px-4 py-3">
+        <a href="/" className="flex min-w-0 items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/incense.png"
@@ -21,14 +22,17 @@ export default function AppHeader() {
             height={36}
             className="h-9 w-9 shrink-0 object-contain"
           />
-          <div className="leading-tight">
+          <div className="min-w-0 leading-tight">
             <h1 className="text-[15px] font-extrabold tracking-tight text-doge-cream">
               狗狗上香
             </h1>
-            <p className="text-[10px] text-doge-cream/50">烧狗狗币 · 求签 · 上烧狗榜</p>
+            <p className="truncate text-[10px] text-doge-cream/50">{t("header.tagline")}</p>
           </div>
         </a>
-        <ConnectButton />
+        <div className="flex shrink-0 items-center gap-1.5">
+          <LangSwitcher />
+          <ConnectButton />
+        </div>
       </div>
     </header>
   );

@@ -1,19 +1,12 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useT } from "./providers/LangProvider";
 
-type Tab = {
-  href: string;
-  label: string;
-  emoji: string;
-  /** active when the path matches exactly (home) or starts with the prefix */
-  match: (path: string) => boolean;
-};
-
-const TABS: Tab[] = [
-  { href: "/", label: "销毁", emoji: "🔥", match: (p) => p === "/" },
-  { href: "/qian", label: "求签", emoji: "🎴", match: (p) => p.startsWith("/qian") },
-  { href: "/board", label: "榜单", emoji: "🏆", match: (p) => p.startsWith("/board") },
+const TABS = [
+  { href: "/", key: "nav.burn", emoji: "🔥", match: (p: string) => p === "/" },
+  { href: "/qian", key: "nav.draw", emoji: "🎴", match: (p: string) => p.startsWith("/qian") },
+  { href: "/board", key: "nav.board", emoji: "🏆", match: (p: string) => p.startsWith("/board") },
 ];
 
 /**
@@ -23,20 +16,21 @@ const TABS: Tab[] = [
  */
 export default function BottomNav() {
   const pathname = usePathname() || "/";
+  const t = useT();
 
   return (
     <nav
-      aria-label="主导航"
+      aria-label={t("nav.aria")}
       className="fixed inset-x-0 bottom-0 z-40 pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto max-w-[480px] px-3 pb-3">
         <div className="flex items-stretch gap-1 rounded-2xl border border-doge-gold/15 bg-doge-char/85 p-1.5 shadow-glow backdrop-blur-xl">
-          {TABS.map((t) => {
-            const active = t.match(pathname);
+          {TABS.map((tab) => {
+            const active = tab.match(pathname);
             return (
               <a
-                key={t.href}
-                href={t.href}
+                key={tab.href}
+                href={tab.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-center transition active:scale-[0.97] ${
                   active
@@ -45,9 +39,9 @@ export default function BottomNav() {
                 }`}
               >
                 <span className={`text-xl leading-none ${active ? "drop-shadow-[0_0_8px_rgba(255,207,51,0.45)]" : ""}`}>
-                  {t.emoji}
+                  {tab.emoji}
                 </span>
-                <span className="text-[11px] font-semibold leading-none">{t.label}</span>
+                <span className="text-[11px] font-semibold leading-none">{t(tab.key)}</span>
               </a>
             );
           })}
