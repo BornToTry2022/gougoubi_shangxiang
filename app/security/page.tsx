@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GGB, DEAD_ADDRESS, BSCSCAN, shortAddr } from "@/lib/ggb";
+import { GGB, DEAD_ADDRESS, BSCSCAN, shortAddr, LINKS } from "@/lib/ggb";
 
 export const metadata: Metadata = {
   title: "安全说明 · Security | 狗狗上香",
@@ -72,6 +72,22 @@ export default function SecurityPage() {
           转账 + 现有的狗狗币代币」。
         </P>
       </Section>
+
+      {/* open-source */}
+      <a
+        href={LINKS.github}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 flex items-center justify-between rounded-2xl border border-doge-gold/30 bg-doge-gold/[0.08] p-4"
+      >
+        <div>
+          <p className="text-sm font-bold text-doge-amber">💻 本 dApp 已开源（MIT）</p>
+          <p className="mt-0.5 text-[12px] text-doge-cream/65">
+            Fully open-source — 代码可读，欢迎自行核对以上每一点。
+          </p>
+        </div>
+        <span className="shrink-0 text-doge-gold">GitHub ↗</span>
+      </a>
 
       {/* ② Token security */}
       <Section index="②" cn="狗狗币代币安全（公开检测）" en="狗狗币 token security (public scans)">

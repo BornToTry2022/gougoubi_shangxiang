@@ -43,7 +43,9 @@ export const LINKS = {
   website: "https://gougoubi.ai/",
   x: "https://x.com/gougoubi_ai",
   telegram: "https://t.me/chinesedogecoinorg",
-  /** Buy GGB on PancakeSwap (the "余额不足 → 去买" hook) */
+  /** Open-source repo (public mirror, code only). */
+  github: "https://github.com/BornToTry2022/gougoubi_shangxiang",
+  /** Buy 狗狗币 on PancakeSwap (the "余额不足 → 去买" hook) */
   buy: `https://pancakeswap.finance/swap?inputCurrency=BNB&outputCurrency=${GGB.address}`,
 } as const;
 

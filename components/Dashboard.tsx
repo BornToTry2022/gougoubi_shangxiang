@@ -229,6 +229,7 @@ function Footer() {
     { label: "官网", href: LINKS.website },
     { label: "X / Twitter", href: LINKS.x },
     { label: "Telegram", href: LINKS.telegram },
+    { label: "GitHub", href: LINKS.github },
   ];
   return (
     <footer className="mt-8 text-center">
