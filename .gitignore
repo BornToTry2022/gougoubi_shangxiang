@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.open-next/
+.data/
+.env
+.env.local
+.dev.vars
+*.log
+.DS_Store
+.wrangler/
+# local screenshots / scratch
+ggb-*.png
+.playwright-mcp/
+.superpowers/
+*.tsbuildinfo
+.ggb-review-workflow.mjs
+# 私有 / 本地文件 —— 不进仓库
+.private/

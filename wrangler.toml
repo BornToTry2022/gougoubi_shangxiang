@@ -1,0 +1,32 @@
+# Cloudflare Workers config for the GGB app (deployed via @opennextjs/cloudflare).
+# Placeholders marked <...> are filled during the deploy session.
+
+name = "ggbburn"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+# static assets produced by the OpenNext build
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# 烧狗榜 / 快照 / 防重放 存储（单 JSON blob）。
+# 创建：  wrangler kv namespace create GGB_KV
+# 然后把返回的 id 填到下面：
+[[kv_namespaces]]
+binding = "GGB_KV"
+id = "<YOUR_KV_NAMESPACE_ID>"
+
+[vars]
+# 正式域名（影响分享卡 OG 图 + TG 链接）。NEXT_PUBLIC_ 在 build 时内联，
+# 构建机的 .env.local 是真正生效的来源；这里保持一致。
+NEXT_PUBLIC_BASE_URL = "https://ggbburn.gougoubi.workers.dev"
+# Reown(WalletConnect) projectId —— 见 .env.example / .env.local。NEXT_PUBLIC_ 在
+# build 时内联，因此真正生效的值放在构建机的 .env.local，不写进仓库。
+NEXT_PUBLIC_REOWN_PROJECT_ID = ""
+
+# 机密用 secret（不要写进文件）：
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+#   wrangler secret put TELEGRAM_CHAT_ID
+#   wrangler secret put CRON_SECRET

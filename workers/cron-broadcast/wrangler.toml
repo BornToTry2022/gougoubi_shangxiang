@@ -1,0 +1,14 @@
+name = "ggb-cron-broadcast"
+main = "worker.js"
+compatibility_date = "2025-03-01"
+
+# 每天 UTC 01:00 触发一次（≈ 北京时间 09:00）。可改。
+[triggers]
+crons = ["0 1 * * *"]
+
+# 服务绑定到主 Worker（同账号 worker 间调用必须用绑定，不能用公网 URL）
+[[services]]
+binding = "MAIN"
+service = "ggbburn"
+
+# 机密：wrangler secret put CRON_SECRET （与主站一致）

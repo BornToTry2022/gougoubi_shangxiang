@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(900px 500px at 50% -10%, rgba(240, 185, 11, 0.18), transparent 60%),
+    radial-gradient(700px 400px at 100% 0%, rgba(255, 122, 24, 0.1), transparent 55%),
+    #0c0a06;
+  color: #fff7e6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* number tabular feel */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
