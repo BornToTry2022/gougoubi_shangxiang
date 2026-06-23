@@ -7,7 +7,7 @@
 // call lives in WalletProvider.tsx, window-guarded.
 //
 // Verified against installed @reown/appkit 1.8.21 / @reown/appkit-adapter-wagmi
-// 1.8.21 / wagmi 3.6.16. See docs/superpowers/specs for the integration spec.
+// 1.8.21 / wagmi 3.6.16.
 
 import { cookieStorage, createStorage } from "wagmi";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";

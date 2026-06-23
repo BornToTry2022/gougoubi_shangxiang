@@ -48,10 +48,11 @@ async function run() {
 
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
-  if (!secret) return true; // dev: allow when unset
-  const url = new URL(req.url);
-  const key = url.searchParams.get("key") || req.headers.get("x-cron-key");
-  return key === secret;
+  // Fail CLOSED in production: an unset secret must never mean "open to the world".
+  // (Locally / in dev it stays open for convenience.)
+  if (!secret) return process.env.NODE_ENV !== "production";
+  // Header-only so the secret never lands in request URLs / CDN access logs.
+  return req.headers.get("x-cron-key") === secret;
 }
 
 export async function GET(req: Request) {

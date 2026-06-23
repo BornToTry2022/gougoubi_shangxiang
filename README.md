@@ -30,9 +30,9 @@
 - **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind**（构建用 webpack：`next build --webpack`）
 - **钱包连接**：Reown AppKit + wagmi v3（只配 BSC 56；只单笔 transfer、绝不 approve）
 - **多语言**：自建轻量 i18n（`lib/i18n*`），简体 / 繁体 / English，无第三方库
-- **部署**：Cloudflare Workers（`@opennextjs/cloudflare`）+ KV
+- **部署**：Cloudflare Workers（`@opennextjs/cloudflare`）+ **D1**（烧狗榜主存储，`INSERT OR IGNORE` 原子去重）/ KV（回退）
 - **链上读取**：公共 BSC RPC（无需 API key）
-- **签卡 PNG**：`next/og`（satori）
+- **签卡 PNG**：`next/og`（satori），`?lang=` 跟随界面 **简 / 繁 / 英** 三语（字体子集见 `lib/cardFont.ts`）
 
 ## 本地运行
 
@@ -45,12 +45,17 @@ npm run dev   # http://localhost:3000
 
 ## 部署（Cloudflare，$0 起）
 
-需要：一个 Cloudflare 账号、一个 KV namespace、一个免费 Reown projectId。
-配置见 `wrangler.toml` 注释，然后：
+需要：一个 Cloudflare 账号、一个 D1 数据库 + 一个 KV namespace、一个免费 Reown projectId。
+按 `wrangler.toml` 注释创建资源并把返回的 id 填回，然后：
 
 ```bash
+npx wrangler kv namespace create GGB_KV     # 把 id 填回 wrangler.toml
+npx wrangler d1 create ggb-leaderboard      # 把 database_id 填回 wrangler.toml（烧狗榜主存储）
+npx wrangler secret put CRON_SECRET         # 生产必需（fail-closed）；TELEGRAM_* 可选
 npm run deploy
 ```
+
+> 部署后首个请求会自动建表 + 从旧 KV 幂等回迁榜单数据（零手动迁移）。
 
 ## License
 

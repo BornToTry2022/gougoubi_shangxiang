@@ -99,7 +99,7 @@ export const UI_STRINGS: Record<string, Record<Lang, string>> = {
   "qian.err_cancel": { "zh-Hans": "你取消了这次求签", "zh-Hant": "你取消了這次求籤", en: "You cancelled this draw" },
   "qian.err_verify": { "zh-Hans": "验证失败", "zh-Hant": "驗證失敗", en: "Verification failed" },
   "qian.err_draw": { "zh-Hans": "求签失败", "zh-Hant": "求籤失敗", en: "Draw failed" },
-  "qian.support": { "zh-Hans": "支持 币安钱包 · OKX · Trust · MetaMask", "zh-Hant": "支持 幣安錢包 · OKX · Trust · MetaMask", en: "Supports 币安钱包 · OKX · Trust · MetaMask" },
+  "qian.support": { "zh-Hans": "支持 币安钱包 · OKX · Trust · MetaMask", "zh-Hant": "支持 幣安錢包 · OKX · Trust · MetaMask", en: "Supports Binance Wallet · OKX · Trust · MetaMask" },
   "qian.support_hint": {
     "zh-Hans": "手机浏览器点「连接钱包」扫码或跳转；钱包内置浏览器自动直连",
     "zh-Hant": "手機瀏覽器點「連接錢包」掃碼或跳轉；錢包內置瀏覽器自動直連",
@@ -134,7 +134,7 @@ export const UI_STRINGS: Record<string, Record<Lang, string>> = {
   "qian.rank_streak": { "zh-Hans": "🔥连签 {n} 天", "zh-Hant": "🔥連籤 {n} 天", en: "🔥 {n}-day streak" },
   "qian.howto": { "zh-Hans": "怎么玩", "zh-Hant": "怎麼玩", en: "How it works" },
   "qian.howto1t": { "zh-Hans": "连接钱包", "zh-Hant": "連接錢包", en: "Connect" },
-  "qian.howto1d": { "zh-Hans": "点「连接钱包」，币安/OKX/Trust/MetaMask 自动出现", "zh-Hant": "點「連接錢包」，幣安/OKX/Trust/MetaMask 自動出現", en: "Tap Connect — 币安/OKX/Trust/MetaMask appear" },
+  "qian.howto1d": { "zh-Hans": "点「连接钱包」，币安/OKX/Trust/MetaMask 自动出现", "zh-Hant": "點「連接錢包」，幣安/OKX/Trust/MetaMask 自動出現", en: "Tap Connect — Binance/OKX/Trust/MetaMask appear" },
   "qian.howto2t": { "zh-Hans": "选档求签", "zh-Hant": "選檔求籤", en: "Pick a tier" },
   "qian.howto2d": { "zh-Hans": "普通/大师/狗王，越旺烧越多", "zh-Hant": "普通/大師/狗王，越旺燒越多", en: "Common/Master/Dog King — better burns more" },
   "qian.howto3t": { "zh-Hans": "烧狗上香", "zh-Hant": "燒狗上香", en: "Burn & pray" },
@@ -152,6 +152,7 @@ export const UI_STRINGS: Record<string, Record<Lang, string>> = {
   // ---- result card (in-app) ----
   "card.recovery": { "zh-Hans": "回本指数（娱乐）", "zh-Hant": "回本指數（娛樂）", en: "Recovery index (fun)" },
   "card.lucky": { "zh-Hans": "今日幸运数字", "zh-Hant": "今日幸運數字", en: "Lucky number" },
+  "card.verifiable": { "zh-Hans": "链上可验证", "zh-Hant": "鏈上可驗證", en: "On-chain verifiable" },
   "card.yi": { "zh-Hans": "宜", "zh-Hant": "宜", en: "Do" },
   "card.ji": { "zh-Hans": "忌", "zh-Hant": "忌", en: "Avoid" },
   "card.receipt": {
@@ -166,6 +167,30 @@ export const UI_STRINGS: Record<string, Record<Lang, string>> = {
   },
   "card.brand_left": { "zh-Hans": "狗狗上香 · 回本签", "zh-Hant": "狗狗上香 · 回本籤", en: "狗狗上香 · Daily Fortune" },
   "card.brand_right": { "zh-Hans": "娱乐玄学 · 非投资建议", "zh-Hant": "娛樂玄學 · 非投資建議", en: "Just for fun · Not financial advice" },
+
+  // ---- shareable card landing page (/qian/card/[txHash]) ----
+  "cardpage.meta_title": { "zh-Hans": "我的回本签 · 狗狗上香", "zh-Hant": "我的回本籤 · 狗狗上香", en: "My Daily Fortune · 狗狗上香" },
+  "cardpage.meta_desc": {
+    "zh-Hans": "烧狗狗币求一签，链上可验证。娱乐玄学，非投资建议。",
+    "zh-Hant": "燒狗狗幣求一籤，鏈上可驗證。娛樂玄學，非投資建議。",
+    en: "Burn 狗狗币 for a fortune — verifiable on-chain. Just for fun, not financial advice.",
+  },
+  "cardpage.og_desc": {
+    "zh-Hans": "烧狗狗币求一签，链上可验证 🐕🔥",
+    "zh-Hant": "燒狗狗幣求一籤，鏈上可驗證 🐕🔥",
+    en: "Burn 狗狗币 for a fortune, verifiable on-chain 🐕🔥",
+  },
+  "cardpage.notfound": { "zh-Hans": "没找到这笔销毁签", "zh-Hant": "找不到這筆銷毀籤", en: "Couldn't find this burn" },
+  "cardpage.go_draw": { "zh-Hans": "去求一签 →", "zh-Hant": "去求一籤 →", en: "Draw a fortune →" },
+  "cardpage.save": { "zh-Hans": "🖼 保存签卡图片（分享到群/X）", "zh-Hant": "🖼 保存籤卡圖片（分享到群/X）", en: "🖼 Save card image (share to group / X)" },
+  "cardpage.verify": { "zh-Hans": "🔎 在 BscScan 核对这笔销毁", "zh-Hant": "🔎 在 BscScan 核對這筆銷毀", en: "🔎 Verify this burn on BscScan" },
+  "cardpage.draw_me": { "zh-Hans": "🀄 我也要求一签", "zh-Hant": "🀄 我也要求一籤", en: "🀄 I want a fortune too" },
+  "cardpage.board": { "zh-Hans": "看「累计烧狗」总榜 →", "zh-Hant": "看「累計燒狗」總榜 →", en: "See the total burn leaderboard →" },
+  "cardpage.disc": {
+    "zh-Hans": "娱乐玄学 · 非投资建议 · 此签由链上销毁交易确定性生成，可复现",
+    "zh-Hant": "娛樂玄學 · 非投資建議 · 此籤由鏈上銷毀交易確定性生成，可復現",
+    en: "Just for fun · Not financial advice · Deterministically generated from the on-chain burn — reproducible",
+  },
 
   // ---- leaderboard / board ----
   "board.loading": { "zh-Hans": "加载烧狗榜…", "zh-Hant": "加載燒狗榜…", en: "Loading leaderboard…" },

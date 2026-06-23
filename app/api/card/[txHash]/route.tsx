@@ -1,8 +1,17 @@
 import { ImageResponse } from "next/og";
-import { OUTCOME_META, draw, tierForAmount } from "@/lib/fortune";
+import {
+  OUTCOME_META,
+  draw,
+  tierForAmount,
+  localizeFortune,
+  outcomeLabel,
+  outcomeName,
+  tierName,
+} from "@/lib/fortune";
 import { verifyBurn } from "@/lib/verifyBurn";
 import { CARD_FONT } from "@/lib/cardFont";
-import { formatCN } from "@/lib/ggb";
+import { formatNum } from "@/lib/ggb";
+import { tr, type Lang } from "@/lib/i18n";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,11 +19,18 @@ export const dynamic = "force-dynamic";
 const W = 640;
 const H = 1000;
 
+/** Parse the ?lang query, falling back to 简体 (the dApp default). */
+function langFromReq(req: Request): Lang {
+  const l = new URL(req.url).searchParams.get("lang");
+  return l === "zh-Hant" || l === "en" ? l : "zh-Hans";
+}
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ txHash: string }> }
 ) {
   const { txHash } = await params;
+  const lang = langFromReq(req);
   const burn = await verifyBurn(txHash);
   if (!burn.ok) {
     return new Response("not a valid burn", { status: 404 });
@@ -22,7 +38,11 @@ export async function GET(
   const tier = tierForAmount(burn.amount);
   const f = draw(txHash, tier);
   const meta = OUTCOME_META[f.outcome];
+  const loc = localizeFortune(txHash, f.outcome, lang);
   const short = `${txHash.slice(0, 10)}…${txHash.slice(-8)}`;
+  // English outcome names can be two words ("Lie Low") — shrink so they don't
+  // overflow the card; CJK names stay at the big display size.
+  const outcomeSize = lang === "en" ? 92 : 132;
 
   return new ImageResponse(
     (
@@ -57,9 +77,9 @@ export async function GET(
               background: "rgba(0,0,0,0.3)",
             }}
           >
-            {tier.name}
+            {tier.emoji} {tierName(tier.id, lang)}
           </div>
-          <div style={{ display: "flex" }}>链上可验证</div>
+          <div style={{ display: "flex" }}>{tr(lang, "card.verifiable")}</div>
         </div>
 
         {/* outcome */}
@@ -72,19 +92,19 @@ export async function GET(
           }}
         >
           <div style={{ display: "flex", fontSize: 26, letterSpacing: 8, color: "rgba(255,247,230,0.5)" }}>
-            {meta.label}
+            {outcomeLabel(f.outcome, lang)}
           </div>
           <div
             style={{
               display: "flex",
-              fontSize: 132,
+              fontSize: outcomeSize,
               fontWeight: 700,
               color: meta.color,
               lineHeight: 1.05,
               marginTop: 8,
             }}
           >
-            {f.outcome}
+            {outcomeName(f.outcome, lang)}
           </div>
           <div style={{ display: "flex", fontSize: 54, marginTop: 14 }}>🐕</div>
         </div>
@@ -109,20 +129,20 @@ export async function GET(
               color: "rgba(255,247,230,0.92)",
             }}
           >
-            「{f.verdict}」
+            「{loc.verdict}」
           </div>
         </div>
 
         {/* meters */}
         <div style={{ display: "flex", gap: 20, marginTop: 40 }}>
-          <Meter label="回本指数（娱乐）" value={`${f.huiben}`} color={meta.color} fill={f.huiben} />
-          <Meter label="今日幸运数字" value={`${f.lucky}`} color="#fff7e6" />
+          <Meter label={tr(lang, "card.recovery")} value={`${f.huiben}`} color={meta.color} fill={f.huiben} />
+          <Meter label={tr(lang, "card.lucky")} value={`${f.lucky}`} color="#fff7e6" />
         </div>
 
         {/* yi / ji */}
         <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
-          <Tag head="宜" text={f.yi} color="#34d399" />
-          <Tag head="忌" text={f.ji} color="#fb7185" />
+          <Tag head={tr(lang, "card.yi")} text={loc.yi} color="#34d399" />
+          <Tag head={tr(lang, "card.ji")} text={loc.ji} color="#fb7185" />
         </div>
 
         {/* spacer */}
@@ -141,10 +161,10 @@ export async function GET(
           }}
         >
           <div style={{ display: "flex" }}>
-            🔥 本签烧 {formatCN(burn.amount)} 狗 · 已永久打入黑洞地址
+            {tr(lang, "card.receipt", { amount: formatNum(burn.amount, lang) })}
           </div>
           <div style={{ display: "flex", fontSize: 20, color: "rgba(255,247,230,0.4)", marginTop: 6 }}>
-            凭证 {short} · 可在 BscScan 核对
+            {tr(lang, "card.proof", { tx: short })}
           </div>
         </div>
 
@@ -158,8 +178,8 @@ export async function GET(
             color: "rgba(255,247,230,0.4)",
           }}
         >
-          <div style={{ display: "flex" }}>狗狗上香 · 回本签</div>
-          <div style={{ display: "flex" }}>娱乐玄学 · 非投资建议</div>
+          <div style={{ display: "flex" }}>{tr(lang, "card.brand_left")}</div>
+          <div style={{ display: "flex" }}>{tr(lang, "card.brand_right")}</div>
         </div>
       </div>
     ),

@@ -116,7 +116,8 @@ export function formatNum(n: number, lang: Lang): string {
   const trim = (x: number, d: number) => x.toFixed(d).replace(/\.?0+$/, "");
   if (lang === "en") {
     if (abs >= 1e9) return trim(n / 1e9, 2) + "B";
-    if (abs >= 1e6) return trim(n / 1e6, 2) + "M";
+    // ≥999,500 would round to "1000K"; show "1M" instead.
+    if (abs >= 9.995e5) return trim(n / 1e6, 2) + "M";
     if (abs >= 1e4) return trim(n / 1e3, 1) + "K";
     return n.toLocaleString("en-US", { maximumFractionDigits: 2 });
   }

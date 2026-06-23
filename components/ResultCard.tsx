@@ -19,7 +19,8 @@ export type CardData = FortuneResult & {
   amount: number;
   txHash?: string;
   from?: string;
-  dateLabel: string;
+  /** Header chip on the right. Falls back to the localized "链上可验证". */
+  dateLabel?: string;
 };
 
 export default function ResultCard({ data }: { data: CardData }) {
@@ -49,7 +50,7 @@ export default function ResultCard({ data }: { data: CardData }) {
         <span className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1">
           {data.tierEmoji} {tName}
         </span>
-        <span>{data.dateLabel}</span>
+        <span>{data.dateLabel ?? t("card.verifiable")}</span>
       </div>
 
       {/* outcome */}

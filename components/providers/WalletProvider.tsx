@@ -58,7 +58,7 @@ export const modal =
           swaps: false,
           analytics: false,
         },
-        enableEIP6963: true, // multi-injected discovery (币安/OKX/MetaMask)
+        enableEIP6963: true, // multi-injected discovery (Binance/OKX/MetaMask)
       })
     : undefined;
 

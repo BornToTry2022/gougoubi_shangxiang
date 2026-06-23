@@ -34,7 +34,9 @@ export default function QianApp() {
   const { mutateAsync: switchChainAsync } = useSwitchChain();
   const { mutateAsync: writeContractAsync } = useWriteContract();
 
-  const [balance, setBalance] = useState<number | null>(null);
+  // Raw on-chain balance in wei (bigint) — compared exactly against the tier cost.
+  // Storing a Number here loses precision at 1e23 (king tier) and wrongly blocks it.
+  const [balRaw, setBalRaw] = useState<bigint | null>(null);
   const [tier, setTier] = useState<DrawTier>(DRAW_TIERS[1]);
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string>("");
@@ -45,23 +47,32 @@ export default function QianApp() {
     streak: number;
   } | null>(null);
 
-  const readBalance = useCallback(async (addr: string) => {
+  const readBalance = useCallback(async (addr: string): Promise<bigint | null> => {
     try {
-      const raw = (await publicClient.readContract({
+      return (await publicClient.readContract({
         address: GGB.address,
         abi: ERC20_ABI,
         functionName: "balanceOf",
         args: [addr as `0x${string}`],
       })) as bigint;
-      setBalance(Number(raw) / 10 ** GGB.decimals);
     } catch {
-      setBalance(null);
+      return null;
     }
   }, []);
 
   useEffect(() => {
-    if (address) readBalance(address);
-    else setBalance(null);
+    if (!address) {
+      setBalRaw(null);
+      return;
+    }
+    // Guard against a stale result after disconnect / account switch.
+    let alive = true;
+    readBalance(address).then((raw) => {
+      if (alive) setBalRaw(raw);
+    });
+    return () => {
+      alive = false;
+    };
   }, [address, readBalance]);
 
   const drawNow = useCallback(async () => {
@@ -93,8 +104,13 @@ export default function QianApp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ txHash: hash }),
       });
-      const json = await res.json();
-      if (!json?.ok) throw new Error(json?.error ?? t("qian.err_verify"));
+      let json;
+      try {
+        json = await res.json();
+      } catch {
+        json = null; // non-JSON body (e.g. an infra/HTML error page)
+      }
+      if (!res.ok || !json?.ok) throw new Error(json?.error ?? t("qian.err_verify"));
 
       setCard({
         ...json.fortune,
@@ -112,7 +128,7 @@ export default function QianApp() {
         streak: json.walletStats?.streak ?? 1,
       });
       setPhase("done");
-      readBalance(address);
+      readBalance(address).then((raw) => setBalRaw(raw));
     } catch (e) {
       setPhase("error");
       const msg = (e as Error)?.message ?? t("qian.err_draw");
@@ -120,7 +136,8 @@ export default function QianApp() {
     }
   }, [address, chainId, tier, switchChainAsync, writeContractAsync, readBalance, t]);
 
-  const insufficient = balance != null && balance < tier.burn;
+  const insufficient =
+    balRaw != null && balRaw < parseUnits(String(tier.burn), GGB.decimals);
   const busy = ["confirming", "mining", "verifying"].includes(phase);
 
   return (
@@ -153,7 +170,7 @@ export default function QianApp() {
             {isConnected && insufficient ? (
               <p className="mt-2 text-center text-[12px] text-doge-cream/45">
                 {t("qian.balance_check", {
-                  balance: formatNum(balance!, lang),
+                  balance: formatNum(Number(balRaw!) / 10 ** GGB.decimals, lang),
                   tier: tierName(tier.id, lang),
                   need: formatNum(tier.burn, lang),
                 })}
@@ -287,7 +304,8 @@ function Actions({ card, onAgain }: { card: CardData; onAgain: () => void }) {
   const t = useT();
   const { lang } = useLang();
   const [hint, setHint] = useState(false);
-  const cardUrl = card.txHash ? `/api/card/${card.txHash}` : null;
+  // PNG card follows the dApp's current language (?lang=…).
+  const cardUrl = card.txHash ? `/api/card/${card.txHash}?lang=${lang}` : null;
 
   const loc =
     card.txHash != null

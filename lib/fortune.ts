@@ -74,8 +74,9 @@ export function tierById(id: string): DrawTier | undefined {
 export function tierForAmount(amountTokens: number): DrawTier {
   let best = DRAW_TIERS[0];
   for (const t of DRAW_TIERS) {
-    // 1% tolerance for rounding / fee-on-transfer (GGB has 0 tax, but be safe)
-    if (amountTokens >= t.burn * 0.99) best = t;
+    // Tiny 0.01% slack only absorbs float/rounding error (GGB is tax-free); it no
+    // longer lets a burn ~1% under a threshold claim the higher tier.
+    if (amountTokens >= t.burn * 0.9999) best = t;
   }
   return best;
 }

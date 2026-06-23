@@ -1,35 +1,54 @@
 // Shareable, verifiable card page for a specific burn tx.
 // Re-derives the fortune from on-chain data, so anyone can open the link and verify.
 import type { Metadata } from "next";
-import ResultCard, { type CardData } from "@/components/ResultCard";
+import { cache } from "react";
+import CardPageClient from "@/components/CardPageClient";
+import type { CardData } from "@/components/ResultCard";
 import { draw, tierForAmount } from "@/lib/fortune";
 import { verifyBurn } from "@/lib/verifyBurn";
-import { BSCSCAN } from "@/lib/ggb";
+import { tr, type Lang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_URL || "";
 
+// Memoize per request so generateMetadata + the page render share a single RPC.
+const getBurn = cache(verifyBurn);
+
+/** Parse the ?lang query, falling back to 简体 (the dApp default). */
+function parseLang(l?: string): Lang {
+  return l === "zh-Hant" || l === "en" ? l : "zh-Hans";
+}
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ txHash: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { txHash } = await params;
-  const img = `${BASE}/api/card/${txHash}`;
+  const lang = parseLang((await searchParams).lang);
+  const burn = await getBurn(txHash);
+  const title = tr(lang, "cardpage.meta_title");
+  // The PNG route 404s for an invalid burn, which breaks the social preview — only
+  // advertise it when the burn is real; otherwise fall back to the static brand image.
+  const img = burn.ok
+    ? { url: `${BASE}/api/card/${txHash}?lang=${lang}`, width: 640, height: 1000 }
+    : { url: `${BASE}/incense.png`, width: 512, height: 512 };
   return {
     metadataBase: BASE ? new URL(BASE) : undefined,
-    title: "我的回本签 · 狗狗上香",
-    description: "烧狗狗币求一签，链上可验证。娱乐玄学，非投资建议。",
+    title,
+    description: tr(lang, "cardpage.meta_desc"),
     openGraph: {
-      title: "我的回本签 · 狗狗上香",
-      description: "烧狗狗币求一签，链上可验证 🐕🔥",
-      images: [{ url: img, width: 640, height: 1000 }],
+      title,
+      description: tr(lang, "cardpage.og_desc"),
+      images: [img],
     },
     twitter: {
-      card: "summary_large_image",
-      title: "我的回本签 · 狗狗上香",
-      images: [img],
+      card: burn.ok ? "summary_large_image" : "summary",
+      title,
+      images: [img.url],
     },
   };
 }
@@ -40,69 +59,24 @@ export default async function CardPage({
   params: Promise<{ txHash: string }>;
 }) {
   const { txHash } = await params;
-  const burn = await verifyBurn(txHash);
+  const burn = await getBurn(txHash);
 
   if (!burn.ok) {
-    return (
-      <main className="mx-auto w-full max-w-[480px] px-5 py-16 text-center">
-        <div className="text-5xl">🐕❓</div>
-        <p className="mt-4 text-doge-cream/80">没找到这笔销毁签</p>
-        <p className="mt-1 text-[12px] text-doge-cream/45">{burn.error}</p>
-        <a href="/qian" className="mt-6 inline-block text-doge-gold">
-          去求一签 →
-        </a>
-      </main>
-    );
+    return <CardPageClient data={null} txHash={txHash} error={burn.error} />;
   }
 
   const tier = tierForAmount(burn.amount);
   const f = draw(txHash, tier);
   const data: CardData = {
     ...f,
+    tierId: tier.id,
     tierName: tier.name,
     tierEmoji: tier.emoji,
     amount: burn.amount,
     txHash,
     from: burn.from,
-    dateLabel: "链上可验证",
+    // dateLabel omitted → ResultCard shows the localized 链上可验证, following the viewer's language.
   };
 
-  return (
-    <main className="mx-auto w-full max-w-[480px] px-5 py-8">
-      <ResultCard data={data} />
-      <div className="mt-4 space-y-2.5">
-        <a
-          href={`/api/card/${txHash}`}
-          target="_blank"
-          rel="noreferrer"
-          className="block w-full rounded-2xl border border-doge-gold/30 bg-doge-gold/[0.08] py-3 text-center text-sm font-semibold text-doge-amber"
-        >
-          🖼 保存签卡图片（分享到群/X）
-        </a>
-        <a
-          href={BSCSCAN.tx(txHash)}
-          target="_blank"
-          rel="noreferrer"
-          className="block w-full rounded-2xl border border-white/10 bg-white/[0.04] py-3 text-center text-sm font-semibold text-doge-cream"
-        >
-          🔎 在 BscScan 核对这笔销毁
-        </a>
-        <a
-          href="/qian"
-          className="block w-full rounded-2xl bg-gradient-to-r from-doge-amber to-doge-ember py-3.5 text-center text-base font-black text-doge-ink shadow-glow"
-        >
-          🀄 我也要求一签
-        </a>
-        <a
-          href="/"
-          className="block w-full rounded-2xl border border-white/10 py-3 text-center text-sm text-doge-cream/70"
-        >
-          看「累计烧狗」总榜 →
-        </a>
-      </div>
-      <p className="mt-4 text-center text-[11px] text-doge-cream/40">
-        娱乐玄学 · 非投资建议 · 此签由链上销毁交易确定性生成，可复现
-      </p>
-    </main>
-  );
+  return <CardPageClient data={data} txHash={txHash} />;
 }

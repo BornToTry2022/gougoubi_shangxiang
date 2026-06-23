@@ -2,6 +2,10 @@ name = "ggb-cron-broadcast"
 main = "worker.js"
 compatibility_date = "2025-03-01"
 
+# No public URL — this worker only runs on its cron trigger (and the service
+# binding below). Keeps the manual fetch() handler off the open internet.
+workers_dev = false
+
 # 每天 UTC 01:00 触发一次（≈ 北京时间 09:00）。可改。
 [triggers]
 crons = ["0 1 * * *"]

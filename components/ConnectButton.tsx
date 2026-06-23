@@ -10,7 +10,7 @@ import { useT } from "./providers/LangProvider";
 /**
  * The single connect entry-point, shown in the global top bar.
  * - Disconnected → "🔗 连接钱包" → opens the AppKit modal (wallet list + QR +
- *   in-app-browser one-tap). 币安/OKX/Trust/MetaMask all appear automatically.
+ *   in-app-browser one-tap). Binance/OKX/Trust/MetaMask all appear automatically.
  * - Connected → a pill with the short address + live GGB balance; tapping it
  *   reopens the modal (account view: switch network / disconnect).
  *

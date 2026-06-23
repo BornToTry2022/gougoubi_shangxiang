@@ -2,33 +2,69 @@
 // and embed it as base64 in lib/cardFont.ts — so the PNG card route can use it on
 // any runtime (edge/node) without a filesystem font dependency.
 //
-// Run: node scripts/fetch-card-font.ts
+// Run: node_modules/.bin/jiti scripts/fetch-card-font.ts
+// (jiti resolves the extensionless TS imports in the lib chain; plain `node` does not.)
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { VERDICTS, YI, JI, OUTCOME_META, DRAW_TIERS } from "../lib/fortune.ts";
+import {
+  VERDICTS_HANT,
+  VERDICTS_EN,
+  YI_HANT,
+  YI_EN,
+  JI_HANT,
+  JI_EN,
+  OUTCOME_LABEL_I18N,
+  OUTCOME_NAME_I18N,
+  TIER_NAME_I18N,
+} from "../lib/fortune-i18n.ts";
+import { UI_STRINGS } from "../lib/i18n-strings.ts";
 
-// every fixed Chinese label/punctuation the PNG card may render
+// every fixed Chinese label/punctuation the PNG card may render (简体 source).
 const FIXED = `
 狗狗币回本签烧狗榜每日链上可验证娱乐玄学非投资建议
 回本指数今日幸运数字宜忌本签已永久打入黑洞地址凭证可在核对
 普通签大师签狗王签天降狗运回暖平平是福蓄势待发
 上上签上签中签下签累计销毁占总量流通固定供应不可增发
 我的排名连签天狗友上香第一个就是榜首谁烧得最多越接近
-「」『』，。、！？：·…—（）%+#
+「」『』，。、！？：·…—（）()%+#
 `;
 
+// The PNG card (/api/card) now renders in 简体 / 繁体 / English depending on the
+// ?lang query, so the embedded subset must cover the glyphs of all three. Collect
+// every string the card can show across languages: fortune verdicts/宜/忌, outcome
+// + tier names, and the `card.*` UI strings (recovery / lucky / yi / ji / receipt /
+// proof / brand / verifiable).
+const cardUiStrings = Object.entries(UI_STRINGS)
+  .filter(([k]) => k.startsWith("card."))
+  .flatMap(([, v]) => Object.values(v));
+
 const text =
+  // 简体 source
   Object.values(VERDICTS).flat().join("") +
   YI.join("") +
   JI.join("") +
   Object.values(OUTCOME_META).map((m) => m.label).join("") +
   DRAW_TIERS.map((t) => t.name).join("") +
+  // 繁体 + English fortune content
+  Object.values(VERDICTS_HANT).flat().join("") +
+  Object.values(VERDICTS_EN).flat().join("") +
+  YI_HANT.join("") +
+  YI_EN.join("") +
+  JI_HANT.join("") +
+  JI_EN.join("") +
+  // outcome / tier names across all languages
+  Object.values(OUTCOME_LABEL_I18N).flatMap((m) => Object.values(m)).join("") +
+  Object.values(OUTCOME_NAME_I18N).flatMap((m) => Object.values(m)).join("") +
+  Object.values(TIER_NAME_I18N).flatMap((m) => Object.values(m)).join("") +
+  // card.* UI strings (all languages)
+  cardUiStrings.join("") +
   FIXED;
 
 // unique chars, drop control/whitespace
 const chars = [...new Set([...text])].filter((c) => c.charCodeAt(0) > 32);
 // always include digits + basic latin for hashes/addresses/numbers
-const ascii = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,:%#+-…x↗→";
+const ascii = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,:%#+-…x↗→()";
 const all = [...new Set([...chars, ...ascii])].join("");
 
 console.log(`unique glyphs needed: ${all.length}`);
