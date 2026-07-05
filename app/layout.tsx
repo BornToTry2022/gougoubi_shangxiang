@@ -7,7 +7,7 @@ import BottomNav from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "https://ggbburn.gougoubi.workers.dev"
+    process.env.NEXT_PUBLIC_BASE_URL || "https://burn.gougoubi.uk"
   ),
   title: "狗狗上香 | 狗狗币公开销毁看板 · 求签 · 烧狗榜",
   description:

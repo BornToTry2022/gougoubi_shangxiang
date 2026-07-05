@@ -3,7 +3,7 @@
 开源社区 dApp —— 为 BNB 链上的中文 meme 币 **狗狗币** 提供「用即通缩」的链上体验：
 **烧一点狗狗币求每日「回本签」、登「烧狗榜」，每一笔销毁都在链上公开可验证。** 界面支持 **简体 / 繁体 / English**。
 
-> 🟢 Live: https://ggbburn.gougoubi.workers.dev
+> 🟢 Live: https://burn.gougoubi.uk
 > 狗狗币合约: `0xb05678ed0c9559955559de864829a0c8af574444`（BSC, 18 decimals）
 > ⚠️ 娱乐玄学 · 非投资建议 · 销毁 ≠ 拉盘
 

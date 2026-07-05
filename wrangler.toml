@@ -30,7 +30,7 @@ database_id = "<YOUR_D1_DATABASE_ID>"
 [vars]
 # 正式域名（影响分享卡 OG 图 + TG 链接）。NEXT_PUBLIC_ 在 build 时内联，
 # 构建机的 .env.local 是真正生效的来源；这里保持一致。
-NEXT_PUBLIC_BASE_URL = "https://ggbburn.gougoubi.workers.dev"
+NEXT_PUBLIC_BASE_URL = "https://burn.gougoubi.uk"
 # Reown(WalletConnect) projectId —— 见 .env.example。NEXT_PUBLIC_ 在 build 时
 # 内联，因此真正生效的值放在构建机的 .env.local，不写进仓库。
 NEXT_PUBLIC_REOWN_PROJECT_ID = ""
